@@ -1,0 +1,12 @@
+.exercise-container.flashed
+{
+    animation-name: flash-animation;
+    animation-duration: 1s;
+}
+
+@keyframes flash-animation
+{
+    0% { background: #a70f0f }
+    25% { background-color: #a70f0f; }
+    100%   { background: default}
+}
