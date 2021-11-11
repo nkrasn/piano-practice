@@ -1,9 +1,8 @@
 import { useRef, useState } from "react";
 
 /**
- * State hook that also stores its value in a ref. Ref values are returned, and both the state and 
- * ref are set when calling the setter. Useful for listeners which only have access to a state's 
- * initial value. 
+ * State hook that also stores its value in a ref. Useful for listeners which only have access to
+ * a state's initial value.
  * 
  * https://medium.com/geographit/accessing-react-state-in-event-listeners-with-usestate-and-useref-hooks-8cceee73c559
  * @param {*} initialValue 
