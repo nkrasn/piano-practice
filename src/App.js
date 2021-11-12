@@ -1,5 +1,6 @@
 import { CssBaseline, Grid, Paper, Typography } from '@mui/material';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
+import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import Cookies from 'universal-cookie';
 
@@ -31,7 +32,7 @@ const theme = createTheme({
 
 function App()
 {
-    const inGame = useSelector(selectInGame);
+    const [inGame, setInGame] = useState(false);
 
     return (
         <ThemeProvider theme={theme}>
@@ -55,8 +56,8 @@ function App()
 
                 {navigator.requestMIDIAccess && (
                     <>
-                        {!inGame && <><HistorySidebar/><ExerciseForm/></>}
-                        {inGame && <Exercise/>}
+                        {!inGame && <><HistorySidebar/><ExerciseForm setInGame={setInGame}/></>}
+                        {inGame && <Exercise setInGame={setInGame}/>}
                     </>
                 )}
 

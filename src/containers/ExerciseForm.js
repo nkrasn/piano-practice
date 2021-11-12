@@ -13,14 +13,13 @@ import {
     Slider,
     Switch,
     Backdrop,
-    CircularProgress,
 } from "@mui/material";
 import { useRef, useState } from "react";
 import { useDispatch } from 'react-redux';
 import * as Tone from 'tone';
 import Cookies from 'universal-cookie';
 
-import { resetProgress, setInGame } from "../slices/exerciseProgress";
+import { resetProgress } from "../slices/exerciseProgress";
 import { chordDefinitions, drawerWidth, nashvilleNumerals } from '../utils/constants';
 import ReadableChord from "../components/ReadableChord";
 import Piano from "../components/Piano";
@@ -29,7 +28,7 @@ import Piano from "../components/Piano";
 const cookies = new Cookies();
 
 
-function ExerciseForm() 
+function ExerciseForm({setInGame}) 
 {
     const [selectedPosition, setSelectedPosition] = useState(0);
     const [hoveredChord, setHoveredChord] = useState();
@@ -79,12 +78,15 @@ function ExerciseForm()
         setCountdownStarted(true);
         dispatch(resetProgress());
         const countdownInterval = setInterval(() => {
-            setCountdown(countdownRef.current - 1);
-            if(countdownRef.current <= 0)
+            if(countdownRef.current === 1)
             {
-                clearInterval(countdownInterval);
                 Tone.start();
-                dispatch(setInGame(false));
+                setInGame(true);
+                clearInterval(countdownInterval);
+            }
+            else
+            {
+                setCountdown(countdownRef.current - 1);
             }
         }, 1000);
     }

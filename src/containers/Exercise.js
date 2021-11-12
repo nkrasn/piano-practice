@@ -1,6 +1,5 @@
 import { Box, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Grid, Typography } from "@mui/material";
 import { useEffect, useRef, useState } from "react";
-import { useHistory } from 'react-router-dom';
 import { useDispatch, useSelector } from "react-redux";
 import * as Tone from 'tone';
 import Cookies from 'universal-cookie';
@@ -54,7 +53,7 @@ const synth = new Tone.Sampler({
     baseUrl: process.env.PUBLIC_URL + "/audio/piano-samples/",
 }).toDestination();
 
-function Exercise() 
+function Exercise({setInGame}) 
 {
     const chords = cookies.get("chords");
     const mode = parseInt(cookies.get("mode"));
@@ -75,13 +74,14 @@ function Exercise()
 
     const flashedTimerRef = useRef(undefined);
 
+    const [pressedCorrectChord, setPressedCorrectChord] = useState(false);
+
+    const isMounted = useIsMounted();
+
 
     const chordCount = useSelector(selectChordCount);
     const correctChordCount = useSelector(selectCorrectChordCount);
     const dispatch = useDispatch();
-
-    const history = useHistory();
-    const isMounted = useIsMounted();
 
     // Exercise timer
     useInterval(() => {
@@ -103,7 +103,7 @@ function Exercise()
                     }], { path: '/', expires:new Date(2100,12,12,12,12,12,12) });
                 }
                 (new Audio(process.env.PUBLIC_URL + "/audio/bell.mp3")).play();
-                history.push("/");
+                setInGame(false);
             }
         }
     }, 1000);
@@ -125,6 +125,7 @@ function Exercise()
     }, []);
 
     useEffect(() => {
+        setAudioRunning(true);
         Tone.context.on("statechange", e => {
             setAudioRunning(e === "running");
             console.log("state changed to " + e);
@@ -137,12 +138,21 @@ function Exercise()
         }
     }, []);
 
+    useEffect(() => {
+        if(!pressedCorrectChord)
+            return;
+        goToNextChord();
+        setPressedCorrectChord(false);
+    }, [pressedCorrectChord])
+
     /******************************************************************************************
      *  Listeners
      */
     function onMidiMessage(midiMessage)
     {
-        console.log(targetKeyRef.current, targetChordRef.current);
+        if(!isMounted.current)
+            return;
+        //console.log(targetKeyRef.current, targetChordRef.current);
         const keyPressed = midiMessage.data[1];
         const velocity = midiMessage.data[2] / 127.0;
         const wasPressed = midiMessage.data[0] === 144 && velocity > 0;
@@ -166,7 +176,7 @@ function Exercise()
             dispatch(incrementChordCount());
             if(!failedCurrentChordRef.current)
                 dispatch(incrementCorrectChordCount());
-            goToNextChord();
+            setPressedCorrectChord(true);
             setHeldKeys([]);
         }
     }
