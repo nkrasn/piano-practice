@@ -1,10 +1,8 @@
 import { CssBaseline, Grid, Paper, Typography } from '@mui/material';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
-import { useEffect, useState } from 'react';
-import { useSelector } from 'react-redux';
+import { useState } from 'react';
 import Cookies from 'universal-cookie';
 
-import { selectInGame } from './slices/exerciseProgress.js';
 import ExerciseForm from './containers/ExerciseForm';
 import Exercise from './containers/Exercise';
 import HistorySidebar from './containers/HistorySidebar.js';
@@ -19,7 +17,7 @@ const cookies = new Cookies();
     {name:"+", position:3}
 ], { path: '/' });
 (cookies.get("mode")            === undefined) && cookies.set("mode", 1, { path: '/' });
-(cookies.get("hand")            === undefined) && cookies.set("hand", 2, { path: '/' });
+(cookies.get("inversion")       === undefined) && cookies.set("inversion", 0, { path: '/' });
 (cookies.get("tts")             === undefined) && cookies.set("tts", true, { path: '/' });
 (cookies.get("sessionLength")   === undefined) && cookies.set("sessionLength", 600, { path: '/' });
 (cookies.get("exerciseHistory") === undefined) && cookies.set("exerciseHistory", [], { path: '/', expires:new Date(2100,12,12,12,12,12,12) });

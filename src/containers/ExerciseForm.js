@@ -42,14 +42,14 @@ function ExerciseForm({setInGame})
 
     const [chords, _setChords]                  = useState(cookies.get("chords"));//useSelector(selectChords);
     const [mode, _setMode]                      = useState(parseInt(cookies.get("mode")));//useSelector(selectMode);
-    const [hand, _setHand]                      = useState(parseInt(cookies.get("hand")));//useSelector(selectHand);
+    const [inversion, _setInversion]            = useState(parseInt(cookies.get("hand")));//useSelector(selectHand);
     const [tts, _setTTS]                        = useState(cookies.get("tts") === "true");//useSelector(selectTTS);
     const [sessionLength, _setSessionLength]    = useState(parseInt(cookies.get("sessionLength")));//useSelector(selectSessionLength)
-    const setChords         = val => { cookies.set("chords",         val, { path: '/' }); _setChords(val); }
-    const setMode           = val => { cookies.set("mode",           val, { path: '/' }); _setMode(parseInt(val)); }
-    const setHand           = val => { cookies.set("hand",           val, { path: '/' }); _setHand(parseInt(val)); }
-    const setTTS            = val => { cookies.set("tts",            val, { path: '/' }); _setTTS(val); }
-    const setSessionLength  = val => { cookies.set("sessionLength",  val, { path: '/' }); _setSessionLength(parseInt(val)); }
+    const setChords         = val => { cookies.set("chords",        val, { path: '/' }); _setChords(val); }
+    const setMode           = val => { cookies.set("mode",          val, { path: '/' }); _setMode(parseInt(val)); }
+    const setInversion      = val => { cookies.set("hand",          val, { path: '/' }); _setInversion(parseInt(val)); }
+    const setTTS            = val => { cookies.set("tts",           val, { path: '/' }); _setTTS(val); }
+    const setSessionLength  = val => { cookies.set("sessionLength", val, { path: '/' }); _setSessionLength(parseInt(val)); }
 
     const dispatch = useDispatch();
 
@@ -101,9 +101,9 @@ function ExerciseForm({setInGame})
         setMode(newValue);
     }
 
-    function handleChangeHand(event, newValue) 
+    function handleChangeInversion(event, newValue) 
     {
-        setHand(newValue);
+        setInversion(newValue);
     }
 
     function handleChangeTTS(event, newValue) 
@@ -206,11 +206,11 @@ function ExerciseForm({setInGame})
                     </Container>
                 </Box>
                 <Divider/>
-                {/* Hand */}
-                <Tabs value={hand} onChange={handleChangeHand}>
-                    <Tab label="Left hand"/>
-                    <Tab label="Right hand"/>
-                    <Tab label="Both hands"/>
+                {/* Inversion */}
+                <Tabs value={inversion} onChange={handleChangeInversion}>
+                    <Tab label="Root Position"/>
+                    <Tab label="First Inversion"/>
+                    <Tab label="Second Inversion"/>
                 </Tabs>
                 {/* TTS */}
                 <FormControlLabel control={<Switch checked={tts} onChange={handleChangeTTS}/>} label="TTS"/>
