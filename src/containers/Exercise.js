@@ -4,14 +4,15 @@ import { useDispatch, useSelector } from "react-redux";
 import * as Tone from 'tone';
 import Cookies from 'universal-cookie';
 
+import "../css/exercise.css";
+import Piano from "../components/Piano";
 import useInterval from "../hooks/useInterval";
+import useIsMounted from "../hooks/isMounted";
+import useRefState from "../hooks/useRefState";
 import { selectChordCount, selectCorrectChordCount, incrementChordCount, incrementCorrectChordCount, resetProgress } from "../slices/exerciseProgress";
 import { chordDefinitions, noteNames } from '../utils/constants';
-import Piano from "../components/Piano";
+import { compareSets, isSubset } from "../utils/functions";
 
-import "../css/exercise.css";
-import useRefState from "../hooks/useRefState";
-import useIsMounted from "../hooks/isMounted";
 
 const cookies = new Cookies();
 
@@ -55,9 +56,11 @@ const synth = new Tone.Sampler({
 
 function Exercise({setInGame}) 
 {
-    const chords = cookies.get("chords");
-    const mode = parseInt(cookies.get("mode"));
-    const tts = cookies.get("tts") === "true";
+    const chords        = cookies.get("chords");
+    const mode          = parseInt(cookies.get("mode"));
+    const useInversions = cookies.get("useInversions") === "true";
+    const inversions    = cookies.get("inversions");
+    const tts           = cookies.get("tts") === "true";
     const sessionLength = parseInt(cookies.get("sessionLength"));
     /*
      *  Making listeners have access to state values:
@@ -68,6 +71,7 @@ function Exercise({setInGame})
     const [heldKeys, heldKeysRef, setHeldKeys] = useRefState([]);
     const [targetKey, targetKeyRef, setTargetKey] = useRefState(-1);
     const [targetChord, targetChordRef, setTargetChord] = useRefState("none");
+    const [targetInversion, targetInversionRef, setTargetInversion] = useRefState(0);
     const [failedCurrentChord, failedCurrentChordRef, setFailedCurrentChord] = useRefState(false);
     const [flashed, flashedRef, setFlashed] = useRefState(false);
     const [midiInputs, midiInputsRef, setMidiInputs] = useRefState([]);
@@ -198,7 +202,15 @@ function Exercise({setInGame})
             newTargetKey = Math.floor(Math.random() * 12);
         } while(newTargetKey === targetKeyRef.current);
         setTargetKey(newTargetKey);
-        setTargetChord(chords[Math.floor(Math.random() * chords.length)].name);
+        const newTargetChord = chords[Math.floor(Math.random() * chords.length)].name;
+        setTargetChord(newTargetChord);
+        let newTargetInversion = 0;
+        if(inversions.length > 0)
+        {
+            newTargetInversion = inversions[Math.floor(Math.random() * inversions.length)];
+            newTargetInversion = Math.min(newTargetInversion, chordDefinitions[newTargetChord].notes.length - 1);
+        }
+        setTargetInversion(newTargetInversion);
         setFailedCurrentChord(false);
         
         if(tts)
@@ -206,7 +218,10 @@ function Exercise({setInGame})
             let msg = new SpeechSynthesisUtterance();
             if(chordDefinitions[targetChordRef.current])
             {
-                msg.text = noteNames[targetKeyRef.current] + " " + chordDefinitions[targetChordRef.current].longName;
+                const noteNameTTS = noteNames[targetKeyRef.current];
+                msg.text = noteNameTTS + " " + chordDefinitions[targetChordRef.current].longName;
+                if(useInversions && inversions.length > 1)
+                    msg.text += " " + ["", "First inversion", "Second inversion", "Third inversion"][newTargetInversion];
                 msg.text = msg.text.replace("♭", " flat ");
                 msg.text = msg.text.replace("#", " sharp ");
             }
@@ -220,43 +235,43 @@ function Exercise({setInGame})
 
     function targetChordIsPressed(lastKeyWasPressed=true) 
     {
+        return targetChordIsPressed_Randomized(lastKeyWasPressed);
+    }
+
+    function targetChordIsPressed_Randomized(lastKeyWasPressed)
+    {
         const targetChordNotes = getTargetChordNotes();
+        const targetChordNotesSet = new Set(targetChordNotes);
         const heldNotes = getHeldNotes();
+        const heldNotesSet = new Set(heldNotes);
+        const heldKeysSorted = heldKeysRef.current.sort((a,b)=>a-b);
+        const lowestNote = (heldKeysSorted[0] - 21) % 12;
 
-        let noIncorrectNotes = true;
-        let numberOfCorrectNotes = 0;
-        for(let note of heldNotes)
-        {
-            if(targetChordNotes.indexOf(note) === -1)
-            {
-                noIncorrectNotes = false;
-                break;
-            }
-            numberOfCorrectNotes++;
-        }
+        let inCorrectInversion = true;
+        if(useInversions)
+            inCorrectInversion = lowestNote === targetChordNotes[targetInversionRef.current];
+        const pressedWrongNote = !isSubset(heldNotesSet, targetChordNotesSet);
+        const pressedAllTargetNotes = compareSets(heldNotesSet, targetChordNotesSet);
 
-        if(!noIncorrectNotes)
+        if(pressedWrongNote || (pressedAllTargetNotes && !inCorrectInversion))
         {
             setFailedCurrentChord(true);
+            if(lastKeyWasPressed)
+            {
+                flashScreen();
+            }
         }
-        
-        if(noIncorrectNotes && numberOfCorrectNotes === targetChordNotes.length)
+
+        if(pressedAllTargetNotes && inCorrectInversion)
         {
             return true;
         }
 
-        if(!noIncorrectNotes && lastKeyWasPressed)
-        {
-            if(flashedTimerRef.current) clearTimeout(flashedTimerRef.current);
-            setFlashed(false);
-            setTimeout(() => {
-                setFlashed(true);
-                flashedTimerRef.current = setTimeout(() => {
-                    setFlashed(false);
-                }, 1000);
-            }, 10);
-        }
-
+        return false;
+    }
+    
+    function targetChordIsPressed_ChordProgression(lastKeyWasPressed)
+    {
         return false;
     }
     
@@ -270,16 +285,16 @@ function Exercise({setInGame})
         setAudioRunning(true); 
     }
 
-    /**
-     * Get the note name of a key and the octave it's in.
-     * @param {Number} key
-     * @returns An array, first element being the note name and the second being the octave
-     */
-    function keyNameOctave(key)
+    function flashScreen()
     {
-        const noteName = noteNames[(key-21)%12];
-        const noteOctave = Math.floor((key-12)/12);
-        return [noteName, noteOctave];
+        if(flashedTimerRef.current) clearTimeout(flashedTimerRef.current);
+        setFlashed(false);
+        setTimeout(() => {
+            setFlashed(true);
+            flashedTimerRef.current = setTimeout(() => {
+                setFlashed(false);
+            }, 1000);
+        }, 10);
     }
 
     /**
@@ -319,6 +334,18 @@ function Exercise({setInGame})
             answer = incorrectNotes.map(note => (((note + offset) % 12) + 12) % 12);
         return answer;
     }
+
+    /**
+     * Get the note name of a key and the octave it's in.
+     * @param {Number} key
+     * @returns An array, first element being the note name and the second being the octave
+     */
+     function keyNameOctave(key)
+     {
+         const noteName = noteNames[(key-21)%12];
+         const noteOctave = Math.floor((key-12)/12);
+         return [noteName, noteOctave];
+     }
     
     function timerToString()
     {
@@ -352,23 +379,14 @@ function Exercise({setInGame})
                 <Box>
                     <Typography>chords: [{chords.map(chord=>`${chord.name}:${chord.position}, `)}]</Typography>
                     <Typography>mode: {mode}</Typography>
+                    <Typography>useInversions: {useInversions ? "true" : "false"}</Typography>
+                    <Typography>inversions: {inversions}</Typography>
                     <Typography>tts: {tts ? "true" : "false"}</Typography>
                     <Typography>session length: {sessionLength} sec</Typography>
                     <Typography>audioRunning:{audioRunning ? "true" : "false"}</Typography>
                 </Box>
                 <Box>
                     <Typography>targetChord: [{targetChord}]</Typography>
-
-                    {/**
-                     * const [audioRunning, setAudioRunning] = useRefState(false);
-    const [time, setTime] = useRefState(100);
-    const [heldKeys, setHeldKeys] = useRefState([]);
-    const [targetKey, setTargetKey] = useRefState(-1);
-    const [targetChord, setTargetChord] = useRefState("none");
-    const [failedCurrentChord, setFailedCurrentChord] = useRefState(false);
-    const [flashed, setFlashed] = useRefState(false);
-    const flashedTimerRef = useRef(undefined);
-                     */}
                 </Box>
             </Grid>
 
@@ -377,6 +395,7 @@ function Exercise({setInGame})
                 {!chordDefinitions[targetChord] ? <Typography variant="h3">Loading...</Typography> : (
                     <>
                     <Typography variant="h3">{noteNames[targetKey]} {chordDefinitions[targetChord].longName}</Typography>
+                    {useInversions && <Typography variant="h5">{["Root position", "First inversion", "Second inversion", "Third inversion"][targetInversion]}</Typography>}
                     <Piano pressedKeys={getHeldNotes(-3)} incorrectKeys={getIncorrectHeldNotes(-3)}/> 
                     <Typography variant="h5">Accuracy: {chordCount ? Math.round(correctChordCount / chordCount * 100) : '-'}% ({correctChordCount}/{chordCount})</Typography>
                     <Typography variant="h5">{timerToString()}</Typography>

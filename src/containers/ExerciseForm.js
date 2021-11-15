@@ -13,6 +13,7 @@ import {
     Slider,
     Switch,
     Backdrop,
+    Checkbox,
 } from "@mui/material";
 import { useRef, useState } from "react";
 import { useDispatch } from 'react-redux';
@@ -40,14 +41,16 @@ function ExerciseForm({setInGame})
         _setCountdown(val);
     }
 
-    const [chords, _setChords]                  = useState(cookies.get("chords"));//useSelector(selectChords);
-    const [mode, _setMode]                      = useState(parseInt(cookies.get("mode")));//useSelector(selectMode);
-    const [inversion, _setInversion]            = useState(parseInt(cookies.get("hand")));//useSelector(selectHand);
-    const [tts, _setTTS]                        = useState(cookies.get("tts") === "true");//useSelector(selectTTS);
-    const [sessionLength, _setSessionLength]    = useState(parseInt(cookies.get("sessionLength")));//useSelector(selectSessionLength)
+    const [chords, _setChords]                  = useState(cookies.get("chords"));
+    const [mode, _setMode]                      = useState(parseInt(cookies.get("mode")));
+    const [useInversions, _setUseInversions]    = useState(cookies.get("useInversions") === "true");
+    const [inversions, _setInversions]          = useState(cookies.get("inversions"));
+    const [tts, _setTTS]                        = useState(cookies.get("tts") === "true");
+    const [sessionLength, _setSessionLength]    = useState(parseInt(cookies.get("sessionLength")));
     const setChords         = val => { cookies.set("chords",        val, { path: '/' }); _setChords(val); }
     const setMode           = val => { cookies.set("mode",          val, { path: '/' }); _setMode(parseInt(val)); }
-    const setInversion      = val => { cookies.set("hand",          val, { path: '/' }); _setInversion(parseInt(val)); }
+    const setUseInversions  = val => { cookies.set("useInversions", val, { path: '/' }); _setUseInversions(val); }
+    const setInversions     = val => { cookies.set("inversions",    val, { path: '/' }); _setInversions(val); }
     const setTTS            = val => { cookies.set("tts",           val, { path: '/' }); _setTTS(val); }
     const setSessionLength  = val => { cookies.set("sessionLength", val, { path: '/' }); _setSessionLength(parseInt(val)); }
 
@@ -101,9 +104,22 @@ function ExerciseForm({setInGame})
         setMode(newValue);
     }
 
-    function handleChangeInversion(event, newValue) 
+    function handleChangeInversion(event) 
     {
-        setInversion(newValue);
+        const targetCheckbox = parseInt(event.currentTarget.value);
+        if(event.currentTarget.checked)
+        {
+            setInversions([...inversions, targetCheckbox]);
+        }
+        else
+        {
+            setInversions(inversions.filter(val => val !== targetCheckbox));
+        }
+    }
+
+    function handleChangeUseInversions(event, newValue)
+    {
+        setUseInversions(newValue);
     }
 
     function handleChangeTTS(event, newValue) 
@@ -206,12 +222,14 @@ function ExerciseForm({setInGame})
                     </Container>
                 </Box>
                 <Divider/>
-                {/* Inversion */}
-                <Tabs value={inversion} onChange={handleChangeInversion}>
-                    <Tab label="Root Position"/>
-                    <Tab label="First Inversion"/>
-                    <Tab label="Second Inversion"/>
-                </Tabs>
+                {/* Inversions */}
+                <FormControlLabel control={<Switch checked={useInversions} onChange={handleChangeUseInversions}/>} label="Use inversions"/>
+                <Box sx={{display:"flex", flexDirection:"column", marginLeft:"2em", marginBottom:"1em"}}>
+                    <FormControlLabel control={<Checkbox value={0} disabled={!useInversions} checked={inversions.indexOf(0) !== -1} onChange={handleChangeInversion}/>} label="Root position"/>
+                    <FormControlLabel control={<Checkbox value={1} disabled={!useInversions} checked={inversions.indexOf(1) !== -1} onChange={handleChangeInversion}/>} label="First inversion"/>
+                    <FormControlLabel control={<Checkbox value={2} disabled={!useInversions} checked={inversions.indexOf(2) !== -1} onChange={handleChangeInversion}/>} label="Second inversion"/>
+                    <FormControlLabel control={<Checkbox value={3} disabled={!useInversions} checked={inversions.indexOf(3) !== -1} onChange={handleChangeInversion}/>} label="Third inversion"/>
+                </Box>
                 {/* TTS */}
                 <FormControlLabel control={<Switch checked={tts} onChange={handleChangeTTS}/>} label="TTS"/>
                 {/* Session length */}
