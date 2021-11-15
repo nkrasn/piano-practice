@@ -10,7 +10,7 @@ import useInterval from "../hooks/useInterval";
 import useIsMounted from "../hooks/isMounted";
 import useRefState from "../hooks/useRefState";
 import { selectChordCount, selectCorrectChordCount, incrementChordCount, incrementCorrectChordCount, resetProgress } from "../slices/exerciseProgress";
-import { chordDefinitions, noteNames } from '../utils/constants';
+import { chordDefinitions, noteNames, noteNamesAlt } from '../utils/constants';
 import { compareSets, isSubset } from "../utils/functions";
 
 
@@ -72,6 +72,7 @@ function Exercise({setInGame})
     const [targetKey, targetKeyRef, setTargetKey] = useRefState(-1);
     const [targetChord, targetChordRef, setTargetChord] = useRefState("none");
     const [targetInversion, targetInversionRef, setTargetInversion] = useRefState(0);
+    const [describeNoteUsingAltName, describeNoteUsingAltNameRef, setDescribeNoteUsingAltName] = useRefState(false);
     const [failedCurrentChord, failedCurrentChordRef, setFailedCurrentChord] = useRefState(false);
     const [flashed, flashedRef, setFlashed] = useRefState(false);
     const [midiInputs, midiInputsRef, setMidiInputs] = useRefState([]);
@@ -211,6 +212,7 @@ function Exercise({setInGame})
             newTargetInversion = Math.min(newTargetInversion, chordDefinitions[newTargetChord].notes.length - 1);
         }
         setTargetInversion(newTargetInversion);
+        setDescribeNoteUsingAltName(Math.random() < 0.5);
         setFailedCurrentChord(false);
         
         if(tts)
@@ -218,11 +220,12 @@ function Exercise({setInGame})
             let msg = new SpeechSynthesisUtterance();
             if(chordDefinitions[targetChordRef.current])
             {
-                const noteNameTTS = noteNames[targetKeyRef.current];
+                const noteNameTTS = describeNoteUsingAltNameRef.current ? noteNamesAlt[targetKeyRef.current] : noteNames[targetKeyRef.current];
                 msg.text = noteNameTTS + " " + chordDefinitions[targetChordRef.current].longName;
                 if(useInversions && inversions.length > 1)
                     msg.text += " " + ["", "First inversion", "Second inversion", "Third inversion"][newTargetInversion];
                 msg.text = msg.text.replace("♭", " flat ");
+                msg.text = msg.text.replace("b", " flat");
                 msg.text = msg.text.replace("#", " sharp ");
             }
             else
@@ -394,7 +397,7 @@ function Exercise({setInGame})
                 {/* Current chord */}
                 {!chordDefinitions[targetChord] ? <Typography variant="h3">Loading...</Typography> : (
                     <>
-                    <Typography variant="h3">{noteNames[targetKey]} {chordDefinitions[targetChord].longName}</Typography>
+                    <Typography variant="h3">{describeNoteUsingAltName ? noteNamesAlt[targetKey] : noteNames[targetKey]} {chordDefinitions[targetChord].longName}</Typography>
                     {useInversions && <Typography variant="h5">{["Root position", "First inversion", "Second inversion", "Third inversion"][targetInversion]}</Typography>}
                     <Piano pressedKeys={getHeldNotes(-3)} incorrectKeys={getIncorrectHeldNotes(-3)}/> 
                     <Typography variant="h5">Accuracy: {chordCount ? Math.round(correctChordCount / chordCount * 100) : '-'}% ({correctChordCount}/{chordCount})</Typography>

@@ -20,6 +20,7 @@ export const chordDefinitions = {
     "sus4":         { notes:[0,5,7],    longName:"Suspended Fourth"             },
 };
 export const nashvilleNumerals = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII'];
-export const noteNames = ['A', 'A#', 'B', 'C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#'];
+export const noteNames      = ['A', 'A#', 'B',  'C', 'C#', 'D', 'D#', 'E',  'F', 'F#', 'G', 'G#'];
+export const noteNamesAlt   = ['A', 'Bb', 'Cb', 'C', 'Db', 'D', 'Eb', 'Fb', 'F', 'Gb', 'G', 'Ab'];
 
 export const drawerWidth = "240px";

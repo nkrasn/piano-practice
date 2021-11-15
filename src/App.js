@@ -18,7 +18,7 @@ const cookies = new Cookies();
 ], { path: '/' });
 (cookies.get("mode")            === undefined) && cookies.set("mode", 1, { path: '/' });
 (cookies.get("useInversions")   === undefined) && cookies.set("useInversions", false, { path: '/' });
-(cookies.get("inversions")      === undefined) && cookies.set("inversions", [0,1,2,3], { path: '/' });
+(cookies.get("inversions")      === undefined) && cookies.set("inversions", [1,2], { path: '/' });
 (cookies.get("tts")             === undefined) && cookies.set("tts", true, { path: '/' });
 (cookies.get("sessionLength")   === undefined) && cookies.set("sessionLength", 600, { path: '/' });
 (cookies.get("exerciseHistory") === undefined) && cookies.set("exerciseHistory", [], { path: '/', expires:new Date(2100,12,12,12,12,12,12) });
