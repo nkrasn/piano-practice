@@ -22,5 +22,6 @@ export const chordDefinitions = {
 export const nashvilleNumerals = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII'];
 export const noteNames      = ['A', 'A#', 'B',  'C', 'C#', 'D', 'D#', 'E',  'F', 'F#', 'G', 'G#'];
 export const noteNamesAlt   = ['A', 'Bb', 'Cb', 'C', 'Db', 'D', 'Eb', 'Fb', 'F', 'Gb', 'G', 'Ab'];
+export const majorScale     = [0, 2, 4, 5, 7, 9, 11];
 
 export const drawerWidth = "240px";

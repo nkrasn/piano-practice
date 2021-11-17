@@ -190,15 +190,9 @@ function ExerciseForm({setInGame})
                 <Divider/>
                 {/* Mode (chord progresssion/randomized) */}
                 <Tabs value={mode} onChange={handleChangeMode}>
-                    <Tab disabled label="Chord Progression"/>
+                    <Tab label="Chord Progression"/>
                     <Tab label="Randomized"/>
                 </Tabs>
-                {/* Position selector */}
-                {mode === 0 && (
-                    <Tabs value={selectedPosition} onChange={handleChangePosition}>
-                        {nashvilleNumerals.map((val,idx) => <Tab key={idx} label={val} disabled={mode === 1}/>)}
-                    </Tabs>
-                )}
                 {/* Chord selector */}
                 <Box sx={{display:"flex", flexDirection:"row", gap:"2em", alignItems:"center"}}>
                     <ImageList sx={{ width: 400 }} cols={4}>
@@ -221,14 +215,22 @@ function ExerciseForm({setInGame})
                         <Piano pressedKeys={hoveredChord && chordDefinitions[hoveredChord].notes}/>
                     </Container>
                 </Box>
+                {/* Position selector */}
+                {mode === 0 && (
+                    <Tabs value={selectedPosition} onChange={handleChangePosition}>
+                        {nashvilleNumerals.map((val,idx) => <Tab key={idx} label={val} disabled={mode === 1}/>)}
+                    </Tabs>
+                )}
                 <Divider/>
                 {/* Inversions */}
-                <FormControlLabel control={<Switch checked={useInversions} onChange={handleChangeUseInversions}/>} label="Use inversions"/>
-                <Box sx={{display:"flex", flexDirection:"column", marginLeft:"2em", marginBottom:"1em"}}>
-                    <FormControlLabel control={<Checkbox value={0} disabled={!useInversions} checked={inversions.indexOf(0) !== -1} onChange={handleChangeInversion}/>} label="Root position"/>
-                    <FormControlLabel control={<Checkbox value={1} disabled={!useInversions} checked={inversions.indexOf(1) !== -1} onChange={handleChangeInversion}/>} label="First inversion"/>
-                    <FormControlLabel control={<Checkbox value={2} disabled={!useInversions} checked={inversions.indexOf(2) !== -1} onChange={handleChangeInversion}/>} label="Second inversion"/>
-                    <FormControlLabel control={<Checkbox value={3} disabled={!useInversions} checked={inversions.indexOf(3) !== -1} onChange={handleChangeInversion}/>} label="Third inversion"/>
+                <Box sx={{display:mode === 0 ? "none" : "block"}}>
+                    <FormControlLabel control={<Switch checked={useInversions} onChange={handleChangeUseInversions} />} label="Practice inversions"/>
+                    <Box sx={{display:"flex", flexDirection:"column", marginLeft:"2em", marginBottom:"1em"}}>
+                        <FormControlLabel control={<Checkbox value={0} disabled={!useInversions || mode === 0} checked={inversions.indexOf(0) !== -1} onChange={handleChangeInversion}/>} label="Root position"/>
+                        <FormControlLabel control={<Checkbox value={1} disabled={!useInversions || mode === 0} checked={inversions.indexOf(1) !== -1} onChange={handleChangeInversion}/>} label="First inversion"/>
+                        <FormControlLabel control={<Checkbox value={2} disabled={!useInversions || mode === 0} checked={inversions.indexOf(2) !== -1} onChange={handleChangeInversion}/>} label="Second inversion"/>
+                        <FormControlLabel control={<Checkbox value={3} disabled={!useInversions || mode === 0} checked={inversions.indexOf(3) !== -1} onChange={handleChangeInversion}/>} label="Third inversion"/>
+                    </Box>
                 </Box>
                 {/* TTS */}
                 <FormControlLabel control={<Switch checked={tts} onChange={handleChangeTTS}/>} label="TTS"/>
