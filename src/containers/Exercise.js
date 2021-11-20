@@ -12,7 +12,7 @@ import useRefState from "../hooks/useRefState";
 import { selectChordCount, selectCorrectChordCount, incrementChordCount, incrementCorrectChordCount, resetProgress } from "../slices/exerciseProgress";
 import { chordDefinitions, noteNames, noteNamesAlt, majorScale } from '../utils/constants';
 import { compareSets, isSubset } from "../utils/functions";
-import ReadableChord from "../components/ReadableChord";
+import ChordButton from "../components/ChordButton";
 
 
 const cookies = new Cookies();
@@ -95,13 +95,47 @@ function Exercise({setInGame})
             {
                 if(chordCount > 0)
                 {
-                    cookies.set("exerciseHistory", [...cookies.get("exerciseHistory"), { 
-                        chords: cookies.get("chords"),
-                        mode: cookies.get("mode"),
-                        sessionLength: cookies.get("sessionLength"),
-                        chordCount: chordCount,
-                        correctChordCount: correctChordCount
-                    }], { path: '/', expires:new Date(2100,12,12,12,12,12,12) });
+                    let newExerciseHistory = {...cookies.get("exerciseHistory")};
+
+                    let newEntry = {
+                        chords: chords,
+                        sessionLength: sessionLength,
+                        exerciseCount: chordCount,
+                        succeedCount: correctChordCount,
+                        date: new Date()
+                    };
+                    console.log(chords, newEntry);
+                    if(mode === 0) // Chord progression
+                    {
+                        newExerciseHistory.chordProgressions.push(newEntry);
+                    }
+                    else if(mode === 1) // Randomized
+                    {
+                        newExerciseHistory.randomized.push(newEntry);
+                    }
+
+                    cookies.set("exerciseHistory", newExerciseHistory, { path: '/', expires:new Date(2100,12,12,12,12,12,12) });
+
+                    // chord/cookies.get("chords"): {name:"major", position:0}
+                    /*const exampleExerciseHistory = {
+                        chordProgressions: [
+                            {
+                                chords: [{name:"major", position:0}, {name:"minor", position:2}],
+                                sessionLength: cookies.get(sessionLength),
+                                exerciseCount: chordCount,
+                                succeedCount: correctChordCount,
+                            },
+                        ],
+
+                        randomized: [
+                            {
+                                chords: new Set(["major", "minor", "m7"]),
+                                sessionLength: cookies.get(sessionLength),
+                                exerciseCount: chordCount,
+                                succeedCount: correctChordCount,
+                            },
+                        ],
+                    }*/
                 }
                 (new Audio(process.env.PUBLIC_URL + "/audio/bell.mp3")).play();
                 setInGame(false);
@@ -483,7 +517,7 @@ function Exercise({setInGame})
                         <Typography variant="h3">{describeNoteUsingAltName ? noteNamesAlt[targetProgressionKey] : noteNames[targetProgressionKey]}</Typography>
                         <Box sx={{display:"flex", flexDirection:"row"}}>
                             {mode === 0 && chords.map((chord,idx) => (
-                                <ReadableChord key={idx} idx={currPosition-1 < idx ? undefined : idx} chordName={chord.name} position={chord.position} nashville/>)
+                                <ChordButton key={idx} idx={currPosition-1 < idx ? undefined : idx} chordName={chord.name} position={chord.position} nashville/>)
                                 )}
                         </Box>
                         </>

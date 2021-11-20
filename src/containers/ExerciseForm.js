@@ -22,7 +22,7 @@ import Cookies from 'universal-cookie';
 
 import { resetProgress } from "../slices/exerciseProgress";
 import { chordDefinitions, drawerWidth, nashvilleNumerals } from '../utils/constants';
-import ReadableChord from "../components/ReadableChord";
+import ChordButton from "../components/ChordButton";
 import Piano from "../components/Piano";
 
 
@@ -165,7 +165,7 @@ function ExerciseForm({setInGame})
                 >
                     {Object.keys(chords).length === 0 && <Typography variant="h5">No chords selected...</Typography>}
                     {mode === 0 && chords.map((chord, idx) => {
-                        return <ReadableChord 
+                        return <ChordButton 
                             key={idx} 
                             idx={idx}
                             chordName={chord.name} 
@@ -177,7 +177,7 @@ function ExerciseForm({setInGame})
                         />;
                     })}
                     {mode === 1 && [...chordsToSet()].map((chordName, idx) => {
-                        return <ReadableChord
+                        return <ChordButton
                             key={idx}
                             idx={idx}
                             chordName={chordName}

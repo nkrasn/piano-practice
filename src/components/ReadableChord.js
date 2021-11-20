@@ -1,13 +1,8 @@
-import { Button, Typography } from "@mui/material";
-import Cookies from 'universal-cookie';
+import { Box, Typography } from "@mui/material";
 
-import { nashvilleNumerals } from '../utils/constants';
+import { nashvilleNumerals } from "../utils/constants";
 
-
-const cookies = new Cookies();
-
-
-function ReadableChord({idx=NaN, chordName="maj", position=0, nashville=false, onMouseOver=undefined, onMouseLeave=undefined, onClick=undefined}) 
+function ReadableChord({nashville, chordName, position, baseVariant="h6", superscriptVariant="p"})
 {
     let isUppercase = true;
     switch(chordName)
@@ -26,29 +21,22 @@ function ReadableChord({idx=NaN, chordName="maj", position=0, nashville=false, o
     }
 
     return (
-        <Button 
-            onClick={onClick}
-            onMouseOver={onMouseOver}
-            onMouseLeave={onMouseLeave}
-            disabled={isNaN(idx)}
-            value={chordName}
-            sx={{ display:"inline-flex", flexDirection:"row", gap:"0.2em", textTransform:"none"}}
-        >
-            {nashville && (
-                <>
-                    <Typography variant="h3">{isUppercase ? nashvilleNumerals[position].toUpperCase() : nashvilleNumerals[position].toLowerCase()}</Typography>
-                    {(chordName !== "major" && chordName !== "minor") && (
-                        <Typography variant="h6" sx={{transform:"translateY(-50%)"}}>{chordName}</Typography>
-                    )}
-                </>
-            )}
-            {!nashville && (
-                <>
-                    <Typography variant="h4">{chordName}</Typography>
-                </>
-            )}
-        </Button>
-    )
+        <>
+        {nashville && (
+            <>
+                <Typography variant={baseVariant}>{isUppercase ? nashvilleNumerals[position].toUpperCase() : nashvilleNumerals[position].toLowerCase()}</Typography>
+                {(chordName !== "major" && chordName !== "minor") && (
+                    <Typography variant={superscriptVariant} sx={{transform:"translateY(-50%)"}}>{chordName}</Typography>
+                )}
+            </>
+        )}
+        {!nashville && (
+            <>
+                <Typography variant={baseVariant}>{chordName}</Typography>
+            </>
+        )}
+        </>
+    );
 }
 
 export default ReadableChord;

@@ -1,17 +1,18 @@
 import {
     Box,
-    Card,
     Drawer,
+    IconButton,
     List,
     ListItem,
-    ListItemButton,
-    ListItemText,
     Typography,
 } from '@mui/material';
+import { ArrowBack } from '@mui/icons-material';
 import { useState } from 'react';
 import Cookies from 'universal-cookie';
-
 import { drawerWidth } from '../utils/constants';
+
+import ExerciseHistoryIndex from '../components/ExerciseHistoryIndex';
+import ExerciseHistoryDetails from '../components/ExerciseHistoryDetails';
 
 
 const cookies = new Cookies();
@@ -20,11 +21,27 @@ const cookies = new Cookies();
 function HistorySidebar() 
 {
     const [exerciseHistory, setExerciseHistory] = useState(cookies.get("exerciseHistory"));
-
+    const [viewingDetails, setViewingDetails] = useState(false);
+    const [chordsToView, setChordsToView] = useState(undefined);
+    const [chordsToViewAreChordProgression, setChordsToViewAreChordProgression] = useState(false);
     
-    function deleteExercise(deletionIdx)
+    function viewExerciseDetails(chords, isChordProgression)
     {
-        const newExerciseHistory = exerciseHistory.filter((exercise, idx) => idx !== deletionIdx);
+        setChordsToView(chords);
+        setChordsToViewAreChordProgression(isChordProgression);
+        setViewingDetails(true);
+    }
+
+    function viewAllExercises()
+    {
+        setViewingDetails(false);
+    }
+
+    function deleteExercise(exerciseDate)
+    {
+        let newExerciseHistory = {...exerciseHistory};
+        newExerciseHistory.chordProgressions = newExerciseHistory.chordProgressions.filter(exercise => exercise.date !== exerciseDate);
+        newExerciseHistory.randomized = newExerciseHistory.randomized.filter(exercise => exercise.date !== exerciseDate);
         setExerciseHistory(newExerciseHistory);
         cookies.set("exerciseHistory", newExerciseHistory, { path: '/', expires:new Date(2100,12,12,12,12,12,12) });
     }
@@ -40,20 +57,19 @@ function HistorySidebar()
             open
         >
             <Box sx={{padding: "1em"}}>
-                <Typography variant="h4">History</Typography>
                 <List>
-                    {(!exerciseHistory || !exerciseHistory.length) && <ListItem>Nothing here... yet.</ListItem>}
-                    {exerciseHistory && exerciseHistory.length > 0 && exerciseHistory.map((exercise, idx) => (
-                        <ListItem key={idx} sx={{flexDirection:"column"}}>
-                            <Card sx={{padding:"1em", width:"100%"}}>
-                                <ListItemText primary={exercise.chords.map(chord => chord.name + " ")}/>
-                                <ListItemText primary={Math.round(exercise.sessionLength / 60) + " minutes"}/>
-                                <ListItemText primary={exercise.chordCount + " chords"}/>
-                                <ListItemText primary={(exercise.chordCount > 0 ? Math.round(exercise.correctChordCount / exercise.chordCount * 100) : '-') + "% accuracy"}/>
-                                <ListItemButton onClick={() => deleteExercise(idx)}>Delete</ListItemButton>
-                            </Card>
-                        </ListItem>
-                    ))}
+                    <ListItem>
+                        {viewingDetails && <IconButton sx={{marginRight:"0.5em"}} onClick={viewAllExercises}><ArrowBack/></IconButton>}
+                        <Typography variant="h5">History</Typography>
+                    </ListItem>
+
+                    {viewingDetails && <ExerciseHistoryDetails 
+                        exercises={chordsToViewAreChordProgression ? exerciseHistory.chordProgressions : exerciseHistory.randomized}
+                        chords={chordsToView} 
+                        isChordProgression={chordsToViewAreChordProgression}
+                        onClickDelete={deleteExercise}
+                    />}
+                    {!viewingDetails && <ExerciseHistoryIndex exerciseHistory={exerciseHistory} onExerciseClick={viewExerciseDetails}/>}
                 </List>
             </Box>
         </Drawer>

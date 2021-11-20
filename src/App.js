@@ -21,7 +21,7 @@ const cookies = new Cookies();
 (cookies.get("inversions")      === undefined) && cookies.set("inversions", [1,2], { path: '/' });
 (cookies.get("tts")             === undefined) && cookies.set("tts", true, { path: '/' });
 (cookies.get("sessionLength")   === undefined) && cookies.set("sessionLength", 600, { path: '/' });
-(cookies.get("exerciseHistory") === undefined) && cookies.set("exerciseHistory", [], { path: '/', expires:new Date(2100,12,12,12,12,12,12) });
+(cookies.get("exerciseHistory") === undefined) && cookies.set("exerciseHistory", {chordProgressions:[], randomized:[]}, { path: '/', expires:new Date(2100,12,12,12,12,12,12) });
 
 const theme = createTheme({
     palette: {

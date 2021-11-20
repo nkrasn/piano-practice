@@ -24,4 +24,4 @@ export const noteNames      = ['A', 'A#', 'B',  'C', 'C#', 'D', 'D#', 'E',  'F',
 export const noteNamesAlt   = ['A', 'Bb', 'Cb', 'C', 'Db', 'D', 'Eb', 'Fb', 'F', 'Gb', 'G', 'Ab'];
 export const majorScale     = [0, 2, 4, 5, 7, 9, 11];
 
-export const drawerWidth = "240px";
+export const drawerWidth = "360px";
