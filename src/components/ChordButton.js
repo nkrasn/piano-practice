@@ -15,7 +15,7 @@ function ChordButton({idx=NaN, chordName="maj", position=0, nashville=false, onM
             value={chordName}
             sx={{ display:"inline-flex", flexDirection:"row", gap:"0.2em", textTransform:"none"}}
         >
-            <ReadableChord nashville={nashville} chordName={chordName} position={position} baseVariant="h3"/>
+            <ReadableChord nashville={nashville} chordName={chordName} position={position} baseVariant="h3" superscriptVariant="h6"/>
         </Button>
     )
 }

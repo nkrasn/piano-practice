@@ -32,7 +32,7 @@ function ReadableChord({nashville, chordName, position, baseVariant="h6", supers
         )}
         {!nashville && (
             <>
-                <Typography variant={baseVariant}>{chordName}</Typography>
+                <Typography variant={superscriptVariant}>{chordName}</Typography>
             </>
         )}
         </>

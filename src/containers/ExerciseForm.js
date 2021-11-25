@@ -18,7 +18,6 @@ import {
 import { useRef, useState } from "react";
 import { useDispatch } from 'react-redux';
 import * as Tone from 'tone';
-import Cookies from 'universal-cookie';
 
 import { resetProgress } from "../slices/exerciseProgress";
 import { chordDefinitions, drawerWidth, nashvilleNumerals } from '../utils/constants';
@@ -26,7 +25,7 @@ import ChordButton from "../components/ChordButton";
 import Piano from "../components/Piano";
 
 
-const cookies = new Cookies();
+const sessionStorage = window.sessionStorage;
 
 
 function ExerciseForm({setInGame}) 
@@ -41,18 +40,18 @@ function ExerciseForm({setInGame})
         _setCountdown(val);
     }
 
-    const [chords, _setChords]                  = useState(cookies.get("chords"));
-    const [mode, _setMode]                      = useState(parseInt(cookies.get("mode")));
-    const [useInversions, _setUseInversions]    = useState(cookies.get("useInversions") === "true");
-    const [inversions, _setInversions]          = useState(cookies.get("inversions"));
-    const [tts, _setTTS]                        = useState(cookies.get("tts") === "true");
-    const [sessionLength, _setSessionLength]    = useState(parseInt(cookies.get("sessionLength")));
-    const setChords         = val => { cookies.set("chords",        val, { path: '/' }); _setChords(val); }
-    const setMode           = val => { cookies.set("mode",          val, { path: '/' }); _setMode(parseInt(val)); }
-    const setUseInversions  = val => { cookies.set("useInversions", val, { path: '/' }); _setUseInversions(val); }
-    const setInversions     = val => { cookies.set("inversions",    val, { path: '/' }); _setInversions(val); }
-    const setTTS            = val => { cookies.set("tts",           val, { path: '/' }); _setTTS(val); }
-    const setSessionLength  = val => { cookies.set("sessionLength", val, { path: '/' }); _setSessionLength(parseInt(val)); }
+    const [chords, _setChords]                  = useState(JSON.parse(sessionStorage.getItem("chords")));
+    const [mode, _setMode]                      = useState(parseInt(sessionStorage.getItem("mode")));
+    const [useInversions, _setUseInversions]    = useState(sessionStorage.getItem("useInversions") === "true");
+    const [inversions, _setInversions]          = useState(JSON.parse(sessionStorage.getItem("inversions")));
+    const [tts, _setTTS]                        = useState(sessionStorage.getItem("tts") === "true");
+    const [sessionLength, _setSessionLength]    = useState(parseInt(sessionStorage.getItem("sessionLength")));
+    const setChords         = val => { sessionStorage.setItem("chords",     JSON.stringify(val)); _setChords(val); }
+    const setMode           = val => { sessionStorage.setItem("mode",                       val); _setMode(parseInt(val)); }
+    const setUseInversions  = val => { sessionStorage.setItem("useInversions",              val); _setUseInversions(val); }
+    const setInversions     = val => { sessionStorage.setItem("inversions", JSON.stringify(val)); _setInversions(val); }
+    const setTTS            = val => { sessionStorage.setItem("tts",                        val); _setTTS(val); }
+    const setSessionLength  = val => { sessionStorage.setItem("sessionLength",              val); _setSessionLength(parseInt(val)); }
 
     const dispatch = useDispatch();
 
@@ -63,12 +62,12 @@ function ExerciseForm({setInGame})
     {
         if(mode === 0)
         {
-            setChords([...cookies.get("chords"), { name:event.currentTarget.value, position:selectedPosition }]);
+            setChords([...chords, { name:event.currentTarget.value, position:selectedPosition }]);
         }
         else if(!chordsToSet().has(event.currentTarget.value))
         {
             setChords([
-                ...cookies.get("chords"), { 
+                ...chords, { 
                     name:event.currentTarget.value, 
                     position:Math.floor(Math.random() * 7) 
                 }
@@ -146,7 +145,10 @@ function ExerciseForm({setInGame})
     function removeChordAt(idx)
     {
         let newChords = [...chords];
+        console.log("chords:",chords);
+        console.log("newChords:",newChords);
         newChords.splice(idx, 1);
+        console.log("spliced:",newChords);
         setChords(newChords);
     }
 
@@ -254,7 +256,7 @@ function ExerciseForm({setInGame})
                     Start Exercise
                 </Button>
                 <Button
-                    onClick={() => { cookies.set("sessionLength", sessionLength/60, { path: '/' }); handleClickStartExercise(); }}
+                    onClick={() => { sessionStorage.setItem("sessionLength", sessionLength/60); handleClickStartExercise(); }}
                     disabled={chords.length === 0}
                 >
                     Start Exercise (seconds)

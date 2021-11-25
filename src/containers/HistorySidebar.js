@@ -7,20 +7,17 @@ import {
     Typography,
 } from '@mui/material';
 import { ArrowBack } from '@mui/icons-material';
-import { useState } from 'react';
-import Cookies from 'universal-cookie';
+import { useEffect, useState } from 'react';
 import { drawerWidth } from '../utils/constants';
 
 import ExerciseHistoryIndex from '../components/ExerciseHistoryIndex';
 import ExerciseHistoryDetails from '../components/ExerciseHistoryDetails';
 
-
-const cookies = new Cookies();
-
+const localStorage = window.localStorage;
 
 function HistorySidebar() 
 {
-    const [exerciseHistory, setExerciseHistory] = useState(cookies.get("exerciseHistory"));
+    const [exerciseHistory, setExerciseHistory] = useState(JSON.parse(localStorage.getItem("exerciseHistory")));
     const [viewingDetails, setViewingDetails] = useState(false);
     const [chordsToView, setChordsToView] = useState(undefined);
     const [chordsToViewAreChordProgression, setChordsToViewAreChordProgression] = useState(false);
@@ -43,7 +40,7 @@ function HistorySidebar()
         newExerciseHistory.chordProgressions = newExerciseHistory.chordProgressions.filter(exercise => exercise.date !== exerciseDate);
         newExerciseHistory.randomized = newExerciseHistory.randomized.filter(exercise => exercise.date !== exerciseDate);
         setExerciseHistory(newExerciseHistory);
-        cookies.set("exerciseHistory", newExerciseHistory, { path: '/', expires:new Date(2100,12,12,12,12,12,12) });
+        localStorage.setItem("exerciseHistory", JSON.stringify(newExerciseHistory));
     }
 
 

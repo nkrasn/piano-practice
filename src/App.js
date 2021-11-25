@@ -9,19 +9,20 @@ import HistorySidebar from './containers/HistorySidebar.js';
 
 import './css/App.css';
 
-const cookies = new Cookies();
-(cookies.get("chords") === undefined) && cookies.set("chords", [
+const sessionStorage = window.sessionStorage;
+const localStorage = window.localStorage;
+(sessionStorage.getItem("chords") === null) && sessionStorage.setItem("chords", JSON.stringify([
     {name:"major", position:0},
     {name:"o7", position:4},
     {name:"minor", position:5},
     {name:"+", position:3}
-], { path: '/' });
-(cookies.get("mode")            === undefined) && cookies.set("mode", 1, { path: '/' });
-(cookies.get("useInversions")   === undefined) && cookies.set("useInversions", false, { path: '/' });
-(cookies.get("inversions")      === undefined) && cookies.set("inversions", [1,2], { path: '/' });
-(cookies.get("tts")             === undefined) && cookies.set("tts", true, { path: '/' });
-(cookies.get("sessionLength")   === undefined) && cookies.set("sessionLength", 600, { path: '/' });
-(cookies.get("exerciseHistory") === undefined) && cookies.set("exerciseHistory", {chordProgressions:[], randomized:[]}, { path: '/', expires:new Date(2100,12,12,12,12,12,12) });
+]));
+(sessionStorage.getItem("mode")            === null) && sessionStorage.setItem("mode", 1);
+(sessionStorage.getItem("useInversions")   === null) && sessionStorage.setItem("useInversions", false);
+(sessionStorage.getItem("inversions")      === null) && sessionStorage.setItem("inversions", JSON.stringify([1,2]));
+(sessionStorage.getItem("tts")             === null) && sessionStorage.setItem("tts", true);
+(sessionStorage.getItem("sessionLength")   === null) && sessionStorage.setItem("sessionLength", 600);
+(localStorage.getItem("exerciseHistory") === null) && localStorage.setItem("exerciseHistory", JSON.stringify({ chordProgressions:[], randomized:[] }));
 
 const theme = createTheme({
     palette: {

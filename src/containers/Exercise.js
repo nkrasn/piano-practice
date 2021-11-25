@@ -2,7 +2,6 @@ import { Box, Button, Dialog, DialogActions, DialogContent, DialogContentText, D
 import { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import * as Tone from 'tone';
-import Cookies from 'universal-cookie';
 
 import "../css/exercise.css";
 import Piano from "../components/Piano";
@@ -15,7 +14,8 @@ import { compareSets, isSubset } from "../utils/functions";
 import ChordButton from "../components/ChordButton";
 
 
-const cookies = new Cookies();
+const sessionStorage = window.sessionStorage;
+const localStorage = window.localStorage;
 
 const synth = new Tone.Sampler({
     urls: {
@@ -52,12 +52,12 @@ const synth = new Tone.Sampler({
 
 function Exercise({setInGame}) 
 {
-    const chords        = cookies.get("chords");
-    const mode          = parseInt(cookies.get("mode"));
-    const useInversions = cookies.get("useInversions") === "true";
-    const inversions    = cookies.get("inversions");
-    const tts           = cookies.get("tts") === "true";
-    const sessionLength = parseInt(cookies.get("sessionLength"));
+    const chords        = JSON.parse(sessionStorage.getItem("chords"));
+    const mode          = parseInt(sessionStorage.getItem("mode"));
+    const useInversions = sessionStorage.getItem("useInversions") === "true";
+    const inversions    = JSON.parse(sessionStorage.getItem("inversions"));
+    const tts           = sessionStorage.getItem("tts") === "true";
+    const sessionLength = parseInt(sessionStorage.getItem("sessionLength"));
 
     const [audioRunning, audioRunningRef, setAudioRunning] = useRefState(false);
     const [time, timeRef, setTime] = useRefState(sessionLength);
@@ -95,7 +95,7 @@ function Exercise({setInGame})
             {
                 if(chordCount > 0)
                 {
-                    let newExerciseHistory = {...cookies.get("exerciseHistory")};
+                    let newExerciseHistory = {...JSON.parse(localStorage.getItem("exerciseHistory"))};
 
                     let newEntry = {
                         chords: chords,
@@ -114,7 +114,7 @@ function Exercise({setInGame})
                         newExerciseHistory.randomized.push(newEntry);
                     }
 
-                    cookies.set("exerciseHistory", newExerciseHistory, { path: '/', expires:new Date(2100,12,12,12,12,12,12) });
+                    localStorage.setItem("exerciseHistory", JSON.stringify(newExerciseHistory));
 
                     // chord/cookies.get("chords"): {name:"major", position:0}
                     /*const exampleExerciseHistory = {
