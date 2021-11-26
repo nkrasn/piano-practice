@@ -12,6 +12,7 @@ import { selectChordCount, selectCorrectChordCount, incrementChordCount, increme
 import { chordDefinitions, noteNames, noteNamesAlt, majorScale } from '../utils/constants';
 import { compareSets, isSubset } from "../utils/functions";
 import ChordButton from "../components/ChordButton";
+import ReadableChord from "../components/ReadableChord";
 
 
 const sessionStorage = window.sessionStorage;
@@ -115,27 +116,6 @@ function Exercise({setInGame})
                     }
 
                     localStorage.setItem("exerciseHistory", JSON.stringify(newExerciseHistory));
-
-                    // chord/cookies.get("chords"): {name:"major", position:0}
-                    /*const exampleExerciseHistory = {
-                        chordProgressions: [
-                            {
-                                chords: [{name:"major", position:0}, {name:"minor", position:2}],
-                                sessionLength: cookies.get(sessionLength),
-                                exerciseCount: chordCount,
-                                succeedCount: correctChordCount,
-                            },
-                        ],
-
-                        randomized: [
-                            {
-                                chords: new Set(["major", "minor", "m7"]),
-                                sessionLength: cookies.get(sessionLength),
-                                exerciseCount: chordCount,
-                                succeedCount: correctChordCount,
-                            },
-                        ],
-                    }*/
                 }
                 (new Audio(process.env.PUBLIC_URL + "/audio/bell.mp3")).play();
                 setInGame(false);
@@ -515,10 +495,17 @@ function Exercise({setInGame})
                     {mode === 0 && ( // Chord progression mode
                         <>
                         <Typography variant="h3">{describeNoteUsingAltName ? noteNamesAlt[targetProgressionKey] : noteNames[targetProgressionKey]}</Typography>
-                        <Box sx={{display:"flex", flexDirection:"row"}}>
+                        <Box sx={{display:"flex", flexDirection:"row", gap:"1em"}}>
                             {mode === 0 && chords.map((chord,idx) => (
-                                <ChordButton key={idx} idx={currPosition-1 < idx ? undefined : idx} chordName={chord.name} position={chord.position} nashville/>)
-                                )}
+                                <ReadableChord 
+                                    key={idx} 
+                                    chordName={chord.name} 
+                                    position={chord.position} 
+                                    baseVariant="h3"
+                                    superscriptVariant="h6"
+                                    color={currPosition-1 < idx ? "#626262" : "#FFFFFF"}
+                                    nashville/>)
+                            )}
                         </Box>
                         </>
                     )}

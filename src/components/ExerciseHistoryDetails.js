@@ -6,6 +6,7 @@ import {
 import { Delete } from '@mui/icons-material';
 import { compareSets } from '../utils/functions';
 import { Box } from '@mui/system';
+import { readableChordProgression } from '../utils/functions';
 
 function ExerciseHistoryDetails({exercises, chords, isChordProgression, onClickDelete})
 {
@@ -16,8 +17,9 @@ function ExerciseHistoryDetails({exercises, chords, isChordProgression, onClickD
             targetChords = targetChords.map(chord => {
                 const chordData = chord.split(',');
                 return { name:chordData[1], position:parseInt(chordData[0]) };
-            })
+            });
             return exercises.filter(exercise => {
+                if(targetChords.length !== exercise.chords.length) return false;
                 for(let i = 0; i < exercise.chords.length; i++)
                 {
                     if(exercise.chords[i].name !== targetChords[i].name || exercise.chords[i].position !== targetChords[i].position)
@@ -42,7 +44,8 @@ function ExerciseHistoryDetails({exercises, chords, isChordProgression, onClickD
     return (
         <>
         <ListItem>
-            <Typography variant="h6">{chords}</Typography>
+            {isChordProgression && readableChordProgression(chords.split(' '))}
+            {!isChordProgression && <Typography variant="h6">{chords}</Typography>}
         </ListItem>
         {filteredExercises.map((exercise, idx) => (
             <ListItem key={idx} sx={{flexDirection:"row", gap:"2em"}}>

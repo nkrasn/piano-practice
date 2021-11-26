@@ -1,9 +1,12 @@
 import {
+    Box,
     Divider,
     ListItem,
     ListItemButton,
     Typography,
 } from '@mui/material';
+import ReadableChord from './ReadableChord';
+import { readableChordProgression } from '../utils/functions';
 
 
 function ExerciseHistoryIndex({exerciseHistory, onExerciseClick}) 
@@ -38,7 +41,8 @@ function ExerciseHistoryIndex({exerciseHistory, onExerciseClick})
             {exercises && exercises.length > 0 && getChords().map((chords, idx) => (
                 <ListItem key={idx} sx={{flexDirection:"row"}}>
                     <ListItemButton sx={{width:"100%", display:"flex", flexDirection:"row"}} onClick={() => onExerciseClick(chords, isChordProgressions)}>
-                        <Typography>{chords}</Typography>
+                        {isChordProgressions && readableChordProgression(chords.split(' '))}
+                        {!isChordProgressions && <Typography>{chords}</Typography>}
                     </ListItemButton>
                 </ListItem>
             ))}
