@@ -310,10 +310,6 @@ function Exercise({setInGame})
         if(pressedWrongNote || (pressedAllTargetNotes && !inCorrectInversion))
         {
             setFailedCurrentChord(true);
-            if(lastKeyWasPressed)
-            {
-                flashScreen();
-            }
         }
 
         if(pressedAllTargetNotes && inCorrectInversion)
@@ -337,10 +333,6 @@ function Exercise({setInGame})
         if(pressedWrongNote)
         {
             setFailedCurrentChord(true);
-            if(lastKeyWasPressed)
-            {
-                flashScreen();
-            }
         }
 
         if(pressedAllTargetNotes)
@@ -359,18 +351,6 @@ function Exercise({setInGame})
         Tone.start();
         if(Tone.context.state === "running")
         setAudioRunning(true); 
-    }
-
-    function flashScreen()
-    {
-        if(flashedTimerRef.current) clearTimeout(flashedTimerRef.current);
-        setFlashed(false);
-        setTimeout(() => {
-            setFlashed(true);
-            flashedTimerRef.current = setTimeout(() => {
-                setFlashed(false);
-            }, 1000);
-        }, 10);
     }
 
     /**
@@ -457,7 +437,6 @@ function Exercise({setInGame})
             sx={{textAlign:"center"}}
             className={"exercise-container " + (flashed && "flashed")}
         >
-            {/* Debug data */}
             <Grid item sx={{
                     position:"fixed", 
                     top:0, left:0, 
@@ -469,23 +448,29 @@ function Exercise({setInGame})
                     textAlign: "left"
                 }}
             >
-                <Box>
-                    <Typography>chords: [{chords.map(chord=>`${chord.name}:${chord.position}, `)}]</Typography>
-                    <Typography>mode: {mode}</Typography>
-                    <Typography>useInversions: {useInversions ? "true" : "false"}</Typography>
-                    <Typography>inversions: {inversions}</Typography>
-                    <Typography>tts: {tts ? "true" : "false"}</Typography>
-                    <Typography>session length: {sessionLength} sec</Typography>
-                    <Typography>audioRunning:{audioRunning ? "true" : "false"}</Typography>
-                </Box>
-                <Box>
-                    <Typography>targetChord: {targetChord}</Typography>
-                    <Typography>targetKey: {targetKey}</Typography>
-                    <Typography>targetInversion: {targetInversion}</Typography>
-                    <Typography>---------</Typography>
-                    <Typography>targetProgressionKey: {targetProgressionKey}</Typography>
-                    <Typography>currPosition: {currPosition}</Typography>
-                </Box>
+                <Button onClick={() => setInGame(false)}>Quit Exercise</Button>
+                {/* Debug data */}
+                {(!process.env.NODE_ENV || process.env.NODE_ENV === "development") && (
+                    <>
+                    <Box>
+                        <Typography>chords: [{chords.map(chord=>`${chord.name}:${chord.position}, `)}]</Typography>
+                        <Typography>mode: {mode}</Typography>
+                        <Typography>useInversions: {useInversions ? "true" : "false"}</Typography>
+                        <Typography>inversions: {inversions}</Typography>
+                        <Typography>tts: {tts ? "true" : "false"}</Typography>
+                        <Typography>session length: {sessionLength} sec</Typography>
+                        <Typography>audioRunning:{audioRunning ? "true" : "false"}</Typography>
+                    </Box>
+                    <Box>
+                        <Typography>targetChord: {targetChord}</Typography>
+                        <Typography>targetKey: {targetKey}</Typography>
+                        <Typography>targetInversion: {targetInversion}</Typography>
+                        <Typography>---------</Typography>
+                        <Typography>targetProgressionKey: {targetProgressionKey}</Typography>
+                        <Typography>currPosition: {currPosition}</Typography>
+                    </Box>
+                    </>
+                )}
             </Grid>
 
             <Grid item sx={{display:"flex", flexDirection:"column", gap:"0.5em"}}>
@@ -526,9 +511,7 @@ function Exercise({setInGame})
                     <DialogTitle>No MIDI device found</DialogTitle>
                     <DialogContent>
                         <DialogContentText>
-                            Please plug a device with MIDI output, then go to the
-                            last page and put in all your settings again (this will be
-                            fixed later and done automatically).
+                            Please plug in a device with MIDI output and then refresh the page.
                         </DialogContentText>
                     </DialogContent>
                 </Dialog>

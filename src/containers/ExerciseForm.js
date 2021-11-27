@@ -255,12 +255,14 @@ function ExerciseForm({setInGame})
                 >
                     Start Exercise
                 </Button>
-                <Button
-                    onClick={() => { sessionStorage.setItem("sessionLength", sessionLength/60); handleClickStartExercise(); }}
-                    disabled={chords.length === 0}
-                >
-                    Start Exercise (seconds)
-                </Button>
+                {(!process.env.NODE_ENV || process.env.NODE_ENV === "development") && (
+                    <Button
+                        onClick={() => { sessionStorage.setItem("sessionLength", sessionLength/60); handleClickStartExercise(); }}
+                        disabled={chords.length === 0}
+                    >
+                        Start Exercise (seconds)
+                    </Button>
+                )}
             </Box>
             <Backdrop
                 open={countdownStarted}
