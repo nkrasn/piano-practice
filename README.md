@@ -1,6 +1,9 @@
 # piano-practice
 
-React app that lets you learn and practice playing chords using a MIDI keyboard. Works in any browser that supports the Web MIDI API (tested with Chrome and Edge).<br>
+React app that lets you learn and practice playing chords using a MIDI keyboard. Works in any browser that supports the Web MIDI API (tested with Chrome and Edge).
+
+Try out the WIP build here: https://nkrasn-piano-practice.netlify.app/<br>
+(Exercises require a MIDI keyboard to be plugged in)
 
 # Exercise Types
 
