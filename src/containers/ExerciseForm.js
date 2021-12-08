@@ -14,6 +14,7 @@ import {
     Switch,
     Backdrop,
     Checkbox,
+    Tooltip,
 } from "@mui/material";
 import { useRef, useState } from "react";
 import { useDispatch } from 'react-redux';
@@ -23,6 +24,7 @@ import { resetProgress } from "../slices/exerciseProgress";
 import { chordDefinitions, drawerWidth, nashvilleNumerals } from '../utils/constants';
 import ChordButton from "../components/ChordButton";
 import Piano from "../components/Piano";
+import { HelpOutline } from "@mui/icons-material";
 
 
 const sessionStorage = window.sessionStorage;
@@ -155,13 +157,14 @@ function ExerciseForm({setInGame})
 
     return (
         <FormGroup>
-            <Box sx={{flexGrow:1, marginLeft:drawerWidth, padding:"1em"}}>
+            <Box sx={{flexGrow:1, marginLeft:drawerWidth, padding:"2em"}}>
                 {/* Chosen chords display */}
                 <Box sx={{ 
                         display:"flex", 
                         gap:"3em", 
-                        height:"5em", 
+                        height:"4em", 
                         width:`calc(100vw - ${drawerWidth} - ${drawerWidth})`,
+                        minWidth: 832,
                         overflowX:"auto",
                     }}
                 >
@@ -175,6 +178,7 @@ function ExerciseForm({setInGame})
                             onMouseOver={handleMouseOverChord}
                             onMouseLeave={handleMouseLeaveChord}
                             onClick={() => removeChordAt(idx)}
+                            tooltip="Delete"
                             nashville
                         />;
                     })}
@@ -186,18 +190,25 @@ function ExerciseForm({setInGame})
                             onMouseOver={handleMouseOverChord}
                             onMouseLeave={handleMouseLeaveChord}
                             onClick={() => removeChordAt(idx)}
+                            tooltip="Delete"
                         />;
                     })}
                 </Box>
-                <Divider/>
+                <Divider sx={{"marginBottom":"1em"}}/>
                 {/* Mode (chord progresssion/randomized) */}
                 <Tabs value={mode} onChange={handleChangeMode}>
                     <Tab label="Chord Progression"/>
                     <Tab label="Randomized"/>
                 </Tabs>
+                {/* Position selector */}
+                {mode === 0 && (
+                    <Tabs value={selectedPosition} onChange={handleChangePosition}>
+                        {nashvilleNumerals.map((val,idx) => <Tab key={idx} label={val} disabled={mode === 1}/>)}
+                    </Tabs>
+                )}
                 {/* Chord selector */}
                 <Box sx={{display:"flex", flexDirection:"row", gap:"2em", alignItems:"center"}}>
-                    <ImageList sx={{ width: 400 }} cols={4}>
+                    <ImageList sx={{ minWidth: 400 }} cols={4}>
                         {Object.keys(chordDefinitions).map((chord,idx) => (
                             <ImageListItem key={idx}>
                                 <Button 
@@ -212,17 +223,11 @@ function ExerciseForm({setInGame})
                             </ImageListItem>
                         ))}
                     </ImageList>
-                    <Container align="center">
+                    <Container align="center" sx={{ minWidth: 400 }}>
                         <Typography variant="h5" sx={{marginBottom:"0.2em", opacity:(hoveredChord ? 1 : 0)}}>{hoveredChord ? chordDefinitions[hoveredChord].longName : "."}</Typography>
                         <Piano pressedKeys={hoveredChord && chordDefinitions[hoveredChord].notes}/>
                     </Container>
                 </Box>
-                {/* Position selector */}
-                {mode === 0 && (
-                    <Tabs value={selectedPosition} onChange={handleChangePosition}>
-                        {nashvilleNumerals.map((val,idx) => <Tab key={idx} label={val} disabled={mode === 1}/>)}
-                    </Tabs>
-                )}
                 <Divider/>
                 {/* Inversions */}
                 <Box sx={{display:mode === 0 ? "none" : "block"}}>
@@ -234,20 +239,23 @@ function ExerciseForm({setInGame})
                         <FormControlLabel control={<Checkbox value={3} disabled={!useInversions || mode === 0} checked={inversions.indexOf(3) !== -1} onChange={handleChangeInversion}/>} label="Third inversion"/>
                     </Box>
                 </Box>
-                {/* TTS */}
-                <FormControlLabel control={<Switch checked={tts} onChange={handleChangeTTS}/>} label="TTS"/>
-                {/* Session length */}
-                <Slider 
-                    sx={{marginTop:"2em", marginLeft:"4em", width:"500px", display:"block"}}
-                    value={sessionLength / 60}
-                    step={5}
-                    marks
-                    min={5}
-                    max={30}
-                    valueLabelDisplay="on"
-                    valueLabelFormat={x => `${x} minute session`}
-                    onChange={handleChangeSessionLength}
-                />
+                <Box sx={{display:"flex", flexDirection:"row", margin:"1em 0", alignItems:"center"}}>
+                    {/* TTS */}
+                    <FormControlLabel control={<Switch checked={tts} onChange={handleChangeTTS}/>} label="TTS"/>
+                    <Tooltip title="At the start of a prompt, hear what chord you have to play."><HelpOutline/></Tooltip>
+                    {/* Session length */}
+                    <Slider 
+                        sx={{marginTop:"2em", marginLeft:"5em", width:"500px", display:"block"}}
+                        value={sessionLength / 60}
+                        step={5}
+                        marks
+                        min={5}
+                        max={30}
+                        valueLabelDisplay="on"
+                        valueLabelFormat={x => `${x} minute session`}
+                        onChange={handleChangeSessionLength}
+                    />
+                </Box>
                 <Button 
                     variant="contained"
                     onClick={handleClickStartExercise}

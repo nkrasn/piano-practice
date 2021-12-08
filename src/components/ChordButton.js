@@ -1,12 +1,12 @@
-import { Button } from "@mui/material";
+import { Button, Tooltip } from "@mui/material";
 import Cookies from 'universal-cookie';
 
 import ReadableChord from "./ReadableChord";
 
 
-function ChordButton({idx=NaN, chordName="maj", position=0, nashville=false, onMouseOver=undefined, onMouseLeave=undefined, onClick=undefined}) 
+function ChordButton({idx=NaN, chordName="maj", position=0, nashville=false, onMouseOver=undefined, onMouseLeave=undefined, onClick=undefined, tooltip=undefined}) 
 {
-    return (
+    const button = (
         <Button 
             onClick={onClick}
             onMouseOver={onMouseOver}
@@ -17,6 +17,17 @@ function ChordButton({idx=NaN, chordName="maj", position=0, nashville=false, onM
         >
             <ReadableChord nashville={nashville} chordName={chordName} position={position} baseVariant="h3" superscriptVariant="h6"/>
         </Button>
+    );
+
+    return (
+        <>
+        {tooltip !== undefined && (
+            <Tooltip title={tooltip} placement="right-start">
+                {button}
+            </Tooltip>
+        )}
+        {tooltip === undefined && button}
+        </>
     )
 }
 
